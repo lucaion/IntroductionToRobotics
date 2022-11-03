@@ -17,5 +17,22 @@ Introduction to Robotics laboratory homeworks, taken in the 3rd year at the Facu
 
 - [Live demo](https://www.youtube.com/watch?v=zQcYk7E_p_8)
 
-## Homework 2
+## [Homework 2](https://github.com/lucaion/IntroductionToRobotics/tree/main/Homework2)
+- Task Requirements
+  * Building the traffic lights for a crosswalk.
+- Components
+  * 5 LEDs
+  * 1 button
+  * 1 buzzer
+  * Resistors
+  * Wires (per logic)
+  
+- Setup
+<p align="center">
+ <img src="https://github.com/lucaion/IntroductionToRobotics/blob/main/Homework2/Setup.jpeg" width="700">
+</p>
+
+- [Live demo](https://www.youtube.com/watch?v=bsaxv4PTFEY)
+
+## Homework 3
 TBA
