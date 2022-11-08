@@ -32,7 +32,7 @@ Introduction to Robotics laboratory homeworks, taken in the 3rd year at the Facu
  <img src="https://github.com/lucaion/IntroductionToRobotics/blob/main/Homework2/Setup.jpeg" width="700">
 </p>
 
-- [Live demo](https://www.youtube.com/watch?v=bsaxv4PTFEY)
+- [Live demo](https://youtu.be/AzNS6tsmH-0)
 
 ## Homework 3
 TBA
