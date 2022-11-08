@@ -28,9 +28,7 @@ Introduction to Robotics laboratory homeworks, taken in the 3rd year at the Facu
   * Wires (per logic)
   
 - Setup
-<p align="center">
- <img src="https://github.com/lucaion/IntroductionToRobotics/blob/main/Homework2/Setup.jpeg" width="700">
-</p>
+
 
 - [Live demo](https://www.youtube.com/watch?v=bsaxv4PTFEY)
 
