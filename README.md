@@ -34,5 +34,21 @@ Introduction to Robotics laboratory homeworks, taken in the 3rd year at the Facu
 
 - [Live demo](https://youtu.be/AzNS6tsmH-0)
 
-## Homework 3
+## [Homework 3](https://github.com/lucaion/IntroductionToRobotics/tree/main/Homework3)
+- Task Requirements
+  * Using the joystick to control the position of the segment and "draw" on the display.
+- Components
+  * 1 7-segment display
+  * 1 joystick
+  * Resistors
+  * Wires (per logic)
+  
+- Setup
+<p align="center">
+ <img src="https://github.com/lucaion/IntroductionToRobotics/blob/main/Homework3/Setup.jpeg" width="700">
+</p>
+
+- [Live demo](https://youtu.be/TYJfvdceaLs)
+
+## Homework 4
 TBA
