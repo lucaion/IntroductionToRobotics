@@ -50,5 +50,18 @@ Introduction to Robotics laboratory homeworks, taken in the 3rd year at the Facu
 
 - [Live demo](https://youtu.be/TYJfvdceaLs)
 
-## Homework 4
-TBA
+## [Homework 4](https://github.com/lucaion/IntroductionToRobotics/tree/main/Homework4)
+- Task Requirements
+  * Using the joystick to move through the 4 digit 7-segment displays digits. Pressing the button will lock in on the current digit and we will use the other axis to increment or decrement the number. Keeping the button pressed will reset all the digit values and the current position to the first digit in the first state.
+  
+- Components
+  * A 4 digit 7-segment display
+  * 1 joystick
+  * A 74hc595 shift register
+  
+- Setup
+<p align="center">
+ <img src="https://github.com/lucaion/IntroductionToRobotics/blob/main/Homework4/Setup.jpeg" width="700">
+</p>
+
+- [Live demo](https://youtu.be/jliaVcqVgpY)
