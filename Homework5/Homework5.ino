@@ -46,7 +46,7 @@ const byte mainMenuSize = 5;
 
 String mainMenu[mainMenuSize] = {
   "Start game",
-  "Highscore",
+  "Leaderboard",
   "Settings",
   "About",
   "How to play"
@@ -62,7 +62,7 @@ String settingsMenu[settingsMenuSize] = {
   "Sound"
 };
 
-const long delayVariable = 2000;
+const long delayVariable = 4000;
 
 
 byte currentMenu = 0;
@@ -178,15 +178,15 @@ void displayLeaderboard(){
   buttonPressed();
   lcd.setCursor(0, 0);
   lcd.print("Leaderboard");
-  lcd.setCursor(1, 0);
+  lcd.setCursor(0, 1);
   lcd.print("page");
 }
 
 void displaySettings(){
   buttonPressed();
-  lcd.setCursor(0, 0);
-  lcd.print("Settings");
-  lcd.setCursor(1, 0);
+  lcd.setCursor(4, 0);
+  lcd.print("Settings");      
+  lcd.setCursor(0, 1);
   lcd.print("page");
 }
 
@@ -194,46 +194,49 @@ void displayAbout(){
   buttonPressed();
   lcd.setCursor(0, 0);
   lcd.print("About");
-  lcd.setCursor(1, 0);
+  lcd.setCursor(0, 1);
   lcd.print("page");
 }
 
 void displayHowToPlay(){
   buttonPressed();
   lcd.setCursor(0, 0);
-  lcd.print("How To Play");
-  lcd.setCursor(1, 0);
-  lcd.print("page");
+  lcd.print("Move Joystick");
+  lcd.setCursor(0, 1);
+  lcd.print("eat blinking led");
 }
 
 
 void menuUpDownMoves(byte menuSize) {
-  if (xValue < minThreshold && yValue < maxDiagonalThreshold && yValue > minDiagonalThreshold && joyMoved == false) {
-    if (currentCursorState == menuSize - 1) {
-      return;        
+  if (currentMenu == 0) {
+    if (xValue < minThreshold && yValue < maxDiagonalThreshold && yValue > minDiagonalThreshold && joyMoved == false) {
+      if (currentCursorState == menuSize - 1) {
+        return;        
+      }
+      else {
+        currentCursorState++;
+        lcd.clear();
+        displayMainMenu();
+      }
+      joyMoved = true;
+    }    
+    if (xValue > maxThreshold && yValue < maxDiagonalThreshold && yValue > minDiagonalThreshold && joyMoved == false) {
+      if (currentCursorState == 0) {
+        return;
+      }
+      else {
+        currentCursorState--; 
+        lcd.clear();
+        displayMainMenu();
+      }
+      joyMoved = true;
     }
-    else {
-      currentCursorState++;
-      lcd.clear();
-      displayMainMenu();
-    }
-    joyMoved = true;
-  }    
-  if (xValue > maxThreshold && yValue < maxDiagonalThreshold && yValue > minDiagonalThreshold && joyMoved == false) {
-    if (currentCursorState == 0) {
-      return;
-    }
-    else {
-      currentCursorState--; 
-      lcd.clear();
-      displayMainMenu();
-    }
-    joyMoved = true;
-  }
 
-  if (yValue > minThreshold && yValue < maxThreshold && xValue > minThreshold && xValue < maxThreshold) {
-    joyMoved = false;
-  }  
+    if (yValue > minThreshold && yValue < maxThreshold && xValue > minThreshold && xValue < maxThreshold) {
+      joyMoved = false;
+    }  
+  } 
+  
 }
 
 
@@ -352,11 +355,11 @@ void buttonPressed() {
             playingGame = false;
           }
         }
-        // else {
-        //   currentMenu = currentCursorState;
-        //   lastCursorState = currentCursorState;
-        //   currentCursorState = 0;
-        // }
+        else {
+          currentMenu = currentCursorState;
+          lastCursorState = currentCursorState;
+          currentCursorState = 0;
+        }
         lcd.clear();
       }
     }
