@@ -29,7 +29,7 @@ const int pinY = A1;
 // variables for joystick moves
 bool joyMoved = false;
 const int minThreshold = 200;
-const int maxThreshold = 800;
+const int maxThreshold = 750;
 const int minDiagonalThreshold = 400;
 const int maxDiagonalThreshold = 600;
 
@@ -42,25 +42,38 @@ byte reading = LOW;
 unsigned long pressedTime = 0;
 bool isPressing = false;
 
+
+// menu size variables
 const byte mainMenuSize = 5;
+const byte settingsMenuSize = 7;
+const byte aboutMenuSize = 4;
+const byte howToPlayMenuSize = 0;
 
-String mainMenu[mainMenuSize] = {
-  "Start game",
-  "Leaderboard",
-  "Settings",
-  "About",
-  "How to play"
-};
+// lcd variables
+const byte lcdWidth = 16;
+const byte lcdHeight = 2;
 
-const byte settingsMenuSize = 6;
-String settingsMenu[settingsMenuSize] = {
-  "Enter name",
-  "Difficulty",
-  "LCD contrast",
-  "LCD brightness",
-  "Mat. brightness",
-  "Sound"
-};
+unsigned long lastScrollTime;
+int scrollCount;
+
+// String mainMenu[mainMenuSize] = {
+//   "Start game",
+//   "Leaderboard",
+//   "Settings",
+//   "About",
+//   "How to play"
+// };
+
+
+// String settingsMenu[settingsMenuSize] = {
+//   "Enter name",
+//   "Difficulty",
+//   "LCD contrast",
+//   "LCD brightness",
+//   "Mat. brightness",
+//   "Sound",
+//   "Back"
+// };
 
 const long delayVariable = 4000;
 
@@ -82,6 +95,28 @@ byte rightArrow[] = {
   B00000
 };
 
+byte downArrow[] = {
+  B00000,
+  B01110,
+  B01110,
+  B01110,
+  B11111,
+  B01110,
+  B00100,
+  B00000
+};
+
+byte upArrow[] = {
+  B00000,
+  B00100,
+  B01110,
+  B11111,
+  B01110,
+  B01110,
+  B01110,
+  B00000
+};
+
 byte matrix[matrixSize][matrixSize] = {
   {0,0,0,0,0,0,0,0},
   {0,0,0,0,0,0,0,0},
@@ -91,6 +126,72 @@ byte matrix[matrixSize][matrixSize] = {
   {0,0,0,0,0,0,0,0},
   {0,0,0,0,0,0,0,0},
   {0,0,0,0,0,0,0,0}
+};
+
+const int startGameMatrix[matrixSize] = {
+  B00100000,
+  B00110000,
+  B00111000,
+  B00111100,
+  B00111000,
+  B00110000,
+  B00100000,
+  B00000000
+};
+
+const int leaderboardMatrix2[matrixSize] = {
+  B11000011,
+  B01000101,
+  B11100010,
+  B00110111,
+  B00001000,
+  B00010000,
+  B00001000,
+  B00110000
+};
+
+const int leaderboardMatrix[matrixSize] = {
+  B00000000,
+  B00000000,
+  B00011000,
+  B01111000,
+  B01111110,
+  B01111110,
+  B00000000,
+  B00000000
+};
+
+const int settingsMatrix[matrixSize] = {
+  B00000100,
+  B00001000,
+  B00001001,
+  B00001110,
+  B01110000,
+  B10010000,
+  B00010000,
+  B00100000
+};
+
+const int howToPlayMatrix[matrixSize] = {
+  B00000000,
+  B00111000,
+  B01000100,
+  B00001000,
+  B00010000,
+  B00010000,
+  B00000000,
+  B00010000
+};
+
+const int aboutMatrix[matrixSize] = {
+  B00000000,
+  B00010000,
+  B00000000,
+  B00110000,
+  B00010000,
+  B00010000,
+  B00011000,
+  B00000000
 };
 
 byte xPos = 0;
@@ -107,17 +208,23 @@ const long interval = 300;
 unsigned long long lastMoved = 0;
 bool matrixChanged = true;
 
+const int buzzerPin = 13;
+
+
 
 
 void setup() {
   pinMode(pinSW, INPUT_PULLUP);
-  lcd.begin(16, 2);
+  lcd.begin(lcdWidth, lcdHeight);
   lcd.createChar(1, rightArrow);
+  lcd.createChar(2, downArrow);
+  lcd.createChar(3, upArrow);
 
-  lcd.begin(16, 2);
-  lcd.print("--- GameName ---");
-  lcd.setCursor(4, 1);
-  lcd.print("WELCOME!");
+  lcd.begin(lcdWidth, lcdHeight);
+  lcd.setCursor(3, 0);
+  lcd.print("WELCOME TO");
+  lcd.setCursor(0, 1);
+  lcd.print("Snake Remastered");
   delay(delayVariable);
   lcd.clear();
 
@@ -134,7 +241,6 @@ void loop() {
   reading = digitalRead(pinSW);
   if (!playingGame) {
     handleMenu();
-    menuUpDownMoves(mainMenuSize);
   }
   else {
     playGame();
@@ -147,55 +253,270 @@ void handleMenu() {
   switch (currentMenu) {
     case 0:
       displayMainMenu();
+      menuUpDownMoves(mainMenuSize);
       break;
     case 1:
       displayLeaderboard();
       break;
     case 2:
       displaySettings();
+      menuUpDownMoves(settingsMenuSize);
       break;
     case 3:
       displayAbout();
+      menuUpDownMoves(aboutMenuSize);
       break;
     case 4:
       displayHowToPlay();
+      menuUpDownMoves(howToPlayMenuSize);
       break;
   }
 }
 
 
 void displayMainMenu() {
-  buttonPressed();
-  lcd.setCursor(4, 0);
-  lcd.print("GameName");      
-  lcd.setCursor(0, 1);
-  lcd.write(1);
-  lcd.setCursor(2, 1);
-  lcd.print(mainMenu[currentCursorState]);
+  if (currentMenu == 0){
+    switch(currentCursorState) {
+      // case 0:
+      //   currentCursorState = 1;
+      //   break;
+      case 0:
+        lcd.setCursor(0, 0);
+        lcd.print("Snake Remastered");
+        lcd.setCursor(0, 1);
+        lcd.write(1);
+        lcd.setCursor(2, 1);
+        lcd.print("Start Game");
+        for (int row = 0; row < matrixSize; row++) {
+          lc.setRow(0, row, startGameMatrix[row]);
+        }
+        lcd.setCursor(15, 1);
+        lcd.write(2);
+        break;
+      case 1:
+        lcd.setCursor(0, 0);
+        lcd.write(1);
+        lcd.setCursor(2, 0);
+        lcd.print("Leaderboard");
+        for (int row = 0; row < matrixSize; row++) {
+          lc.setRow(0, row, leaderboardMatrix[row]);
+        }
+        lcd.setCursor(15, 0);
+        lcd.write(3);
+        lcd.setCursor(2, 1);
+        lcd.print("Settings");
+        lcd.setCursor(15, 1);
+        lcd.write(2);
+        break;
+      case 2:
+        lcd.setCursor(2, 0);
+        lcd.print("Leaderboard");
+        lcd.setCursor(15, 0);
+        lcd.write(3);
+        lcd.setCursor(0, 1);
+        lcd.write(1);
+        lcd.setCursor(2, 1);
+        lcd.print("Settings");
+        for (int row = 0; row < matrixSize; row++) {
+          lc.setRow(0, row, settingsMatrix[row]);
+        }
+        lcd.setCursor(15, 1);
+        lcd.write(2);
+        break;
+      case 3:
+        lcd.setCursor(0, 0);
+        lcd.write(1);
+        lcd.setCursor(2, 0);
+        lcd.print("About");
+        for (int row = 0; row < matrixSize; row++) {
+          lc.setRow(0, row, aboutMatrix[row]);
+        }
+        lcd.setCursor(15, 0);
+        lcd.write(3);
+        lcd.setCursor(2, 1);
+        lcd.print("How to play");
+        lcd.setCursor(15, 1);
+        lcd.write(2);
+        break;
+      case 4:
+        lcd.setCursor(2, 0);
+        lcd.print("About");
+        lcd.setCursor(15, 0);
+        lcd.write(3);
+        lcd.setCursor(0, 1);
+        lcd.write(1);
+        lcd.setCursor(2, 1);
+        lcd.print("How to play");
+        for (int row = 0; row < matrixSize; row++) {
+          lc.setRow(0, row, howToPlayMatrix[row]);
+        } 
+        break;     
+    }
+  }
 }
 
 void displayLeaderboard(){
   buttonPressed();
   lcd.setCursor(0, 0);
-  lcd.print("Leaderboard");
+  lcd.print("Leaderboard page");
   lcd.setCursor(0, 1);
   lcd.print("page");
+  for (int row = 0; row < matrixSize; row++) {
+    lc.setRow(0, row, leaderboardMatrix[row]);
+  } 
 }
 
 void displaySettings(){
-  buttonPressed();
-  lcd.setCursor(4, 0);
-  lcd.print("Settings");      
-  lcd.setCursor(0, 1);
-  lcd.print("page");
+  if (currentMenu == 2){
+    switch(currentCursorState) {
+      case 0:
+        lcd.setCursor(4, 0);
+        lcd.print("Settings");
+        lcd.setCursor(0, 1);
+        lcd.write(1);
+        lcd.setCursor(2, 1);
+        lcd.print("Enter name");
+        lcd.setCursor(15, 1);
+        lcd.write(2);
+        break;
+      case 1:
+        lcd.setCursor(0, 0);
+        lcd.write(1);
+        lcd.setCursor(2, 0);
+        lcd.print("Difficulty");
+        lcd.setCursor(15, 0);
+        lcd.write(3);
+        lcd.setCursor(2, 1);
+        lcd.print("LCD contrast");
+        lcd.setCursor(15, 1);
+        lcd.write(2);
+        break;
+      case 2:
+        lcd.setCursor(2, 0);
+        lcd.print("Difficulty");
+        lcd.setCursor(15, 0);
+        lcd.write(3);
+        lcd.setCursor(0, 1);
+        lcd.write(1);        
+        lcd.setCursor(2, 1);
+        lcd.print("LCD contrast");
+        lcd.setCursor(15, 1);
+        lcd.write(2);
+        break;
+      case 3:
+        lcd.setCursor(0, 0);
+        lcd.write(1);
+        lcd.setCursor(2, 0);
+        lcd.print("LCDBrightness");
+        lcd.setCursor(15, 0);
+        lcd.write(3);
+        lcd.setCursor(2, 1);
+        lcd.print("MatBrightness");
+        lcd.setCursor(15, 1);
+        lcd.write(2);
+        break;
+      case 4:
+        lcd.setCursor(2, 0);
+        lcd.print("LCDBrightness");
+        lcd.setCursor(15, 0);
+        lcd.write(3);
+        lcd.setCursor(0, 1);
+        lcd.write(1);        
+        lcd.setCursor(2, 1);
+        lcd.print("MatBrightness"); 
+        lcd.setCursor(15, 1);
+        lcd.write(2);        
+        break;     
+      case 5:
+        lcd.setCursor(0, 0);
+        lcd.write(1); 
+        lcd.setCursor(2, 0);
+        lcd.print("Sound");
+        lcd.setCursor(15, 0);
+        lcd.write(3);   
+        lcd.setCursor(2, 1);
+        lcd.print("Back");
+        lcd.setCursor(15, 1);
+        lcd.write(2);
+        break;      
+      case 6:
+        lcd.setCursor(2, 0);
+        lcd.print("Sound");
+        lcd.setCursor(15, 0);
+        lcd.write(3);
+        lcd.setCursor(0, 1);
+        lcd.write(1);
+        lcd.setCursor(2, 1);
+        lcd.print("Back"); 
+        break;            
+    }
+
+    for (int row = 0; row < matrixSize; row++) {
+      lc.setRow(0, row, settingsMatrix[row]);
+    }
+  }
 }
 
 void displayAbout(){
-  buttonPressed();
-  lcd.setCursor(0, 0);
-  lcd.print("About");
-  lcd.setCursor(0, 1);
-  lcd.print("page");
+  if (currentMenu == 3) {
+    switch (currentCursorState) {
+      case 0:
+        lcd.setCursor(0, 0);
+        lcd.print("-- About page --");
+        lcd.setCursor(0, 1);
+        lcd.write(1);
+        //scrollText("Title: Snake Remastered");
+        lcd.setCursor(2, 1);
+        lcd.print("Title: Snake"); // Remastered");
+        lcd.setCursor(15, 1);
+        lcd.write(2);
+        break;
+      case 1: 
+        lcd.setCursor(0, 0);
+        lcd.write(1);
+        lcd.setCursor(2, 0);
+        lcd.print("By: Luca Ion");
+        lcd.setCursor(15, 0);
+        lcd.write(3);
+        lcd.setCursor(2, 1);
+        lcd.print("Github: http");//s://github.com/lucaion");
+        // lcd.setCursor(14, 1);
+        // lcd.print("  ");
+        lcd.setCursor(15, 1);
+        lcd.write(2);
+        break;
+      case 2:
+        lcd.setCursor(2, 0);
+        lcd.print("By: Luca Ion");
+        lcd.setCursor(15, 0);
+        lcd.write(3);
+        lcd.setCursor(0, 1);
+        lcd.write(1);
+        lcd.setCursor(2, 1);
+        lcd.print("Github: http");//s://github.com/lucaion");
+        // lcd.setCursor(14, 1);
+        // lcd.print("  ");
+        lcd.setCursor(15, 1);
+        lcd.write(2);
+        break;
+      case 3:
+        lcd.setCursor(2, 0);
+        lcd.print("Github: http");//s://github.com/lucaion");
+        // lcd.setCursor(14, 0);
+        // lcd.print("  ");
+        lcd.setCursor(15, 0);
+        lcd.write(3);
+        lcd.setCursor(0, 1);
+        lcd.write(1);
+        lcd.setCursor(2, 1);
+        lcd.print("Back");
+        break;
+    }
+
+    for (int row = 0; row < matrixSize; row++) {
+      lc.setRow(0, row, aboutMatrix[row]);
+    } 
+  }
 }
 
 void displayHowToPlay(){
@@ -204,39 +525,47 @@ void displayHowToPlay(){
   lcd.print("Move Joystick");
   lcd.setCursor(0, 1);
   lcd.print("eat blinking led");
+  for (int row = 0; row < matrixSize; row++) {
+    lc.setRow(0, row, howToPlayMatrix[row]);
+  } 
 }
 
 
 void menuUpDownMoves(byte menuSize) {
-  if (currentMenu == 0) {
-    if (xValue < minThreshold && yValue < maxDiagonalThreshold && yValue > minDiagonalThreshold && joyMoved == false) {
-      if (currentCursorState == menuSize - 1) {
-        return;        
-      }
-      else {
-        currentCursorState++;
-        lcd.clear();
-        displayMainMenu();
-      }
-      joyMoved = true;
-    }    
-    if (xValue > maxThreshold && yValue < maxDiagonalThreshold && yValue > minDiagonalThreshold && joyMoved == false) {
-      if (currentCursorState == 0) {
-        return;
-      }
-      else {
-        currentCursorState--; 
-        lcd.clear();
-        displayMainMenu();
-      }
-      joyMoved = true;
+  if (xValue < minThreshold && yValue < maxDiagonalThreshold && yValue > minDiagonalThreshold && joyMoved == false) {
+    if (currentCursorState == menuSize - 1) {
+      tone(buzzerPin, 370, 30);   
     }
+    else {
+      currentCursorState++;
+      tone(buzzerPin, 600, 30);
+      lcd.clear();
+      lc.clearDisplay(0);
+      displayMainMenu();
+      displaySettings();
+      displayAbout();
+    }
+    joyMoved = true;
+  }    
+  if (xValue > maxThreshold && yValue < maxDiagonalThreshold && yValue > minDiagonalThreshold && joyMoved == false) {
+    if (currentCursorState == 0) {
+      tone(buzzerPin, 370, 30);
+    }
+    else {
+      currentCursorState--; 
+      tone(buzzerPin, 600, 30);
+      lcd.clear();
+      lc.clearDisplay(0);
+      displayMainMenu();
+      displaySettings();
+      displayAbout();
+    }
+    joyMoved = true;
+  }
 
-    if (yValue > minThreshold && yValue < maxThreshold && xValue > minThreshold && xValue < maxThreshold) {
-      joyMoved = false;
-    }  
-  } 
-  
+  if (yValue > minThreshold && yValue < maxThreshold && xValue > minThreshold && xValue < maxThreshold) {
+    joyMoved = false;
+  }  
 }
 
 
@@ -347,20 +676,53 @@ void buttonPressed() {
       swState = reading;
 
       if (swState == LOW) {
-        if (currentMenu == 0 && currentCursorState == 0) {
-          if (!playingGame) {
-            playingGame = true;
-          }
-          else {
-            playingGame = false;
-          }
+        tone(buzzerPin, 105, 30);
+        switch (currentMenu) {
+          case 0: //mainMenu
+            switch (currentCursorState) {
+              case 0:
+                if (!playingGame) {
+                  playingGame = true;
+                }
+                else {
+                  playingGame = false;
+                }
+                break;
+              case 1: case 2: case 3: case 4:
+                currentMenu = currentCursorState;
+                lastCursorState = currentCursorState;
+                currentCursorState = 0;
+                break;
+            }
+            break;
+          case 2: //settingsMenu
+            if (currentCursorState == settingsMenuSize - 1) {
+              currentMenu = 0;
+              currentCursorState = lastCursorState;
+            }
+            break;
+          case 3: // aboutMenu
+            if (currentCursorState == aboutMenuSize - 1) {
+              currentMenu = 0;
+              currentCursorState = lastCursorState;
+            }
+            break;
         }
-        else {
-          currentMenu = currentCursorState;
-          lastCursorState = currentCursorState;
-          currentCursorState = 0;
-        }
+        // if (currentMenu == 0 && currentCursorState == 0) {
+        //   if (!playingGame) {
+        //     playingGame = true;
+        //   }
+        //   else {
+        //     playingGame = false;
+        //   }
+        // }
+        // else {
+        //   currentMenu = currentCursorState;
+        //   lastCursorState = currentCursorState;
+        //   currentCursorState = 0;
+        // }
         lcd.clear();
+        lc.clearDisplay(0);
       }
     }
   }
@@ -370,11 +732,40 @@ void buttonPressed() {
 
 void menuInGame(){
   lcd.setCursor(0, 0);
-  lcd.print("--- GameName ---");
+  lcd.print("Snake Remastered");
   lcd.setCursor(0, 1);
   lcd.print("Player");
   lcd.write(1);
   lcd.print("Score: ");
   lcd.print(score);
   buttonPressed();
+}
+
+void scrollText(String text) {
+  while (text != " ") {
+    int stringStart = 0;
+    int stringEnd = 0;
+    int scrollCursor = lcdWidth;
+
+    lcd.setCursor(2, 1);
+    lcd.print(text.substring(stringStart, stringEnd));
+    delay(1500);
+
+    if (stringStart == 0 && scrollCursor > 0) {
+      scrollCursor--;
+      stringEnd ++;
+
+    }
+    else if (stringStart == stringEnd) {
+      stringStart = stringEnd = 0;
+      scrollCursor = lcdWidth;
+    }
+    else if(stringEnd == text.length() && scrollCursor == 0) {
+      stringStart++;
+    }
+    else {
+      stringStart++;
+      stringEnd++;
+    }
+  }
 }
