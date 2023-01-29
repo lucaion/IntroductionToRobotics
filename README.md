@@ -66,7 +66,7 @@ Introduction to Robotics laboratory homeworks, taken in the 3rd year at the Facu
 
 - [Live demo](https://youtu.be/jliaVcqVgpY)
 
-## [Homework5](https://github.com/lucaion/IntroductionToRobotics/tree/main/Homework5)
+## [Homework5](https://github.com/lucaion/IntroductionToRobotics/blob/main/Homework5/Homework5.ino)
 - Task Requirements
   * Menu + a mini-game for the matrix project.
   
